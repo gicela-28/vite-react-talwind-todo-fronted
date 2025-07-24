@@ -1,92 +1,118 @@
-import CrossIcon from './components/icons/CrossIcon'
-import MoonIcon from './components/icons/Moon'
+import { useEffect, useState } from 'react'
+import Header from './components/Header'
+import TodoComputed from './components/TodoComputed'
+import TodoCreate from './components/TodoCreate'
+import TodoFilter from './components/TodoFilter'
+import TodoList from './components/TodoList'
+
+// const initialStateTodos = [
+//      {
+//           id: 1,
+//           title: 'go to the gym',
+//           completed: true,
+//      },
+//      {
+//           id: 2,
+//           title: 'complete the text',
+//           completed: false,
+//      },
+//      {
+//           id: 3,
+//           title: 'Otro',
+//           completed: false,
+//      },
+//      {
+//           id: 4,
+//           title: 'tengo hambre',
+//           completed: true,
+//      },
+//      {
+//           id: 5,
+//           title: 'gicela',
+//           completed: true,
+//      },
+// ]
+
+const initialStateTodos = JSON.parse(localStorage.getItem('todos')) || []
 
 const App = () => {
-    return (
-        <div className="min-h-screen bg-gray-200 bg-[url('./assets/images/bg-mobile-light.jpg')] bg-contain bg-no-repeat">
-            <header className="container mx-auto px-4 pt-8">
-                <div className="flex justify-between">
-                    <h1 className="text-3xl font-semibold uppercase tracking-[0.3em] text-white">
-                        Todo
-                    </h1>
-                    <button><MoonIcon fill="#f5f" /> </button>
-                </div>
-                <form
-                    className="mt-8 flex items-center gap-4 overflow-hidden rounded-md bg-white px-4 py-3"
-                    action=""
-                >
-                    <span className="inline-block h-5 w-5 rounded-full border-2"></span>
-                    <input
-                        type="text"
-                        placeholder="create nuevo"
-                        className="w-full text-gray-400 outline-none"
-                    />
-                </form>
-            </header>
-            <main className="container mx-auto mt-8 px-4">
-                <div className="rounded-md bg-white [&>article]:px-4">
-                    <article className="flex gap-4 border-b border-b-gray-400 px-4 py-4">
-                        <button className="inline-block h-5 w-5 flex-none rounded-full border-2"></button>
-                        <p className="grow text-gray-600">
-                            Complete online javaScrip
-                        </p>
-                        <button className="flex-none">
-                            <CrossIcon />
-                        </button>
-                    </article>
-                    <article className="flex gap-4 border-b border-b-gray-400 py-4">
-                        <button className="inline-block h-5 w-5 flex-none rounded-full border-2"></button>
-                        <p className="grow text-gray-600">
-                            Complete online javaScrip
-                        </p>
-                        <button className="flex-none">
-                            <CrossIcon />
-                        </button>
-                    </article>
-                    <article className="flex gap-4 border-b border-b-gray-400 py-4">
-                        <button className="inline-block h-5 w-5 flex-none rounded-full border-2"></button>
-                        <p className="grow text-gray-600">
-                            Complete online javaScrip
-                        </p>
-                        <button className="flex-none">
-                            <CrossIcon />
-                        </button>
-                    </article>
-                    <article className="mb-4 flex gap-4 border-b border-b-gray-400 py-4">
-                        <button className="inline-block h-5 w-5 flex-none rounded-full border-2"></button>
-                        <p className="grow text-gray-600">
-                            Complete online javaScrip
-                        </p>
-                        <button className="flex-none">
-                            <CrossIcon />
-                        </button>
-                    </article>
+     const [todos, setTodos] = useState(initialStateTodos)
 
-                    <section className="flex justify-between py-4">
-                        <span className="text-gray-400">5 items left</span>
-                        <button className="text-gray-400">
-                            clear complete
-                        </button>
-                    </section>
-                </div>
-            </main>
-            <section className="container mx-auto mt-8 px-4">
-                <div className="flex justify-center gap-4 rounded-md bg-white px-3 py-2">
-                    <button className="text-blue-600">All</button>
-                    <button className="hover:text-blue-600">Active</button>
-                    <button className="hover:text-blue-600">Completed</button>
-                </div>
-            </section>
-            <div className="container flex">
-                <div className="">
-                    <p className="container mx-auto mt-2 rounded-md bg-slate-300">
-                        Lorem ipsum dolor sit amet consectetur, adipisicing
-                        elit. Nisi doloremque ab iusto?
-                    </p>
-                </div>
-            </div>
-        </div>
-    )
+     useEffect(() => {
+          localStorage.setItem('todos', JSON.stringify(todos))
+     }, [todos])
+
+     const createTodo = (title) => {
+          const newTodo = {
+               id: Date.now(),
+               title: title.trim(),
+               completed: false,
+          }
+          setTodos([...todos, newTodo])
+     }
+
+     const removeTodo = (id) => {
+          setTodos(todos.filter((todo) => todo.id !== id))
+     }
+
+     const updateTodo = (id) => {
+          setTodos(
+               todos.map((todo) =>
+                    todo.id === id
+                         ? { ...todo, completed: !todo.completed }
+                         : todo
+               )
+          )
+     }
+
+     const computedItemLeft = todos.filter((todo) => !todo.completed).length
+
+     const clearCompleted = () => {
+          setTodos(todos.filter((todo) => !todo.completed))
+     }
+
+     const [filter, setFilter] = useState('completed')
+
+     const changeFilter = (filter) => setFilter(filter)
+
+     const filteredTodos = () => {
+          switch (filter) {
+               case 'all':
+                    return todos
+               case 'active':
+                    return todos.filter((todo) => !todo.completed)
+               case 'completed':
+                    return todos.filter((todo) => todo.completed)
+               default:
+                    return todos
+          }
+     }
+
+     return (
+          <div className="min-h-screen bg-gray-200 bg-[url('./assets/images/bg-mobile-light.jpg')] bg-contain bg-no-repeat transition duration-700 dark:bg-gray-900 dark:bg-[url('./assets/images/bg-mobile-dark.jpg')] md:bg-[url('./assets/images/bg-desktop-light.jpg')] md:dark:bg-[url('./assets/images/bg-desktop-dark.jpg')]">
+               <Header />
+               <main className="container mx-auto mt-8 px-4 md:max-w-xl">
+                    <TodoCreate createTodo={createTodo} />
+
+                    {/* todoList (TdoItem) TodoUpdate &  TodoDelete */}
+                    <TodoList
+                         todos={filteredTodos()}
+                         removeTodo={removeTodo}
+                         updateTodo={updateTodo}
+                    />
+                    {/* TodoComputed */}
+                    <TodoComputed
+                         computedItemLeft={computedItemLeft}
+                         clearCompleted={clearCompleted}
+                    />
+                    {/* TodoFilter */}
+                    <TodoFilter changeFilter={changeFilter} filter={filter} />
+               </main>
+               <footer className="mb-5 mt-8 text-center transition duration-700 dark:bg-gray-800 dark:text-gray-300">
+                    Drag anf frop to recorder list
+               </footer>
+          </div>
+     )
 }
 
 export default App
